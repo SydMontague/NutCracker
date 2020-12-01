@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <cstring>
 #include <iomanip>
 #include <cassert>
 #include <algorithm>

@@ -1,6 +1,7 @@
 #include "NutScript.h"
 #include <iostream>
 #include <fstream>
+#include <cstring>
 
 const char* version = "0.03";
 const char* nutVersion = "2.2.4 64-bit";
@@ -107,6 +108,13 @@ int Decompile( const char* file, const char* debugFunction )
 	return 0;
 }
 
+int stricmpWrapper(char* in, const char* cmp) {
+	#ifdef __linux__
+		return strncasecmp(in, cmp, sizeof(cmp));
+	#elif _WIN32
+		return _stricmp(in, cmp);
+	#endif
+}
 
 int main( int argc, char* argv[] )
 {
@@ -114,12 +122,12 @@ int main( int argc, char* argv[] )
 
 	for( int i = 1; i < argc; ++i)
 	{
-		if (0 == _stricmp(argv[i], "-h"))
+		if (0 == stricmpWrapper(argv[i], "-h"))
 		{
 			Usage();
 			return 0;
 		}
-		else if (0 == _stricmp(argv[i], "-d"))
+		else if (0 == stricmpWrapper(argv[i], "-d"))
 		{
 			if ((argc - i) < 2)
 			{
@@ -129,7 +137,7 @@ int main( int argc, char* argv[] )
 			debugFunction = argv[i + 1];
 			i += 1;
 		}
-		else if (0 == _stricmp(argv[i], "-cmp"))
+		else if (0 == stricmpWrapper(argv[i], "-cmp"))
 		{
 			if ((argc - i) < 3)
 			{
@@ -138,7 +146,7 @@ int main( int argc, char* argv[] )
 			}
 			return Compare(argv[i + 1], argv[i + 2], false);
 		}
-		else if (0 == _stricmp(argv[i], "-cmpg"))
+		else if (0 == stricmpWrapper(argv[i], "-cmpg"))
 		{
 			if ((argc - i) < 3)
 			{

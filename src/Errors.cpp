@@ -18,7 +18,7 @@ Error::Error( const char* format, ... )
 	va_list args;
 	va_start(args, format);
 
-	vsprintf_s(buffer, format, args);
+	vsnprintf(buffer, 800, format, args);
 
 	va_end(args);
 
@@ -27,7 +27,7 @@ Error::Error( const char* format, ... )
 
 
 // ************************************************************************************************************************************
-const char* Error::what() const
+const char* Error::what()
 {
 	return m_what.c_str();
 }
