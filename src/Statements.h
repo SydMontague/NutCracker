@@ -9,7 +9,6 @@
 #include "BlockState.h"
 #include "Formatters.h"
 
-using namespace std::tr1;
 // *******************************************************************************************
 enum StatementType
 {
@@ -311,11 +310,12 @@ class LocalVarInitStatement : public Statement
 private:
 	std::string m_Name;
 	ExpressionPtr m_Initialization;
-	int m_StackAddress;
-	int m_StartAddress, m_EndAddress;
+	int64_t m_StackAddress;
+	int64_t m_StartAddress;
+	int64_t m_EndAddress;
 
 public:
-	explicit LocalVarInitStatement( const std::string& name, int stackAddress, int startAddress, int endAddress, ExpressionPtr init = ExpressionPtr() )
+	explicit LocalVarInitStatement( const std::string& name, int64_t stackAddress, int64_t startAddress, int64_t endAddress, ExpressionPtr init = ExpressionPtr() )
 	{
 		m_Name = name;
 		m_StackAddress = stackAddress;
@@ -344,9 +344,9 @@ public:
 		return m_Name;
 	}
 
-	int GetStackAddress( void ) const		{ return m_StackAddress;	}
-	int GetStartAddress( void ) const		{ return m_StartAddress;	}
-	int GetEndAddress( void ) const			{ return m_EndAddress;		}
+	int64_t GetStackAddress( void ) const		{ return m_StackAddress;	}
+	int64_t GetStartAddress( void ) const		{ return m_StartAddress;	}
+	int64_t GetEndAddress( void ) const			{ return m_EndAddress;		}
 };
 
 // *******************************************************************************************

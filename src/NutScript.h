@@ -4,6 +4,7 @@
 #include <istream>
 #include <vector>
 #include <memory>
+#include <stdint.h>
 
 #include "BinaryReader.h"
 #include "SqObject.h"
@@ -37,23 +38,23 @@ private:
 	struct LocalVarInfo
 	{
 		std::string name;
-		int start_op;
-		int end_op;
-		int pos;
+		int64_t start_op;
+		int64_t end_op;
+		int64_t pos;
 		bool foreachLoopState;
 	};
 
 	struct LineInfo
 	{
-		int line;
-		int op;
+		int64_t line;
+		int64_t op;
 	};
 
 	int m_FunctionIndex;
 	std::string m_SourceName;
 	std::string m_Name;
 
-	int m_StackSize;
+	int64_t m_StackSize;
 	bool m_IsGenerator;
 	bool m_GotVarParams;
 

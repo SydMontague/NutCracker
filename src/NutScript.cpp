@@ -4,6 +4,8 @@
 #include <fstream>
 #include <string>
 
+#include <stdint.h>
+
 #include "Errors.h"
 #include "NutScript.h"
 #include "BinaryReader.h"
@@ -77,30 +79,30 @@ void NutFunction::Load( BinaryReader& reader )
 
 	reader.ConfirmOnPart();
 	
-	int nLiterals = reader.ReadInt32();
-	int nParameters = reader.ReadInt32();
-	int nOuterValues = reader.ReadInt32();
-	int nLocalVarInfos = reader.ReadInt32();
-	int nLineInfos = reader.ReadInt32();
-	int nDefaultParams = reader.ReadInt32();
-	int nInstructions = reader.ReadInt32();
-	int nFunctions = reader.ReadInt32();
+	int64_t nLiterals = reader.ReadInt64();
+	int64_t nParameters = reader.ReadInt64();
+	int64_t nOuterValues = reader.ReadInt64();
+	int64_t nLocalVarInfos = reader.ReadInt64();
+	int64_t nLineInfos = reader.ReadInt64();
+	int64_t nDefaultParams = reader.ReadInt64();
+	int64_t nInstructions = reader.ReadInt64();
+	int64_t nFunctions = reader.ReadInt64();
 	
 	reader.ConfirmOnPart();
 
-	m_Literals.resize(nLiterals);
+	m_Literals.resize((size_t) nLiterals);
 	for(int i = 0; i < nLiterals; ++i)
 		m_Literals[i].Load(reader);
 
 	reader.ConfirmOnPart();
 	
-	m_Parameters.resize(nParameters);
+	m_Parameters.resize((size_t) nParameters);
 	for(int i = 0; i < nParameters; ++i)
 		reader.ReadSQStringObject(m_Parameters[i]);
 
 	reader.ConfirmOnPart();
 
-	m_OuterValues.resize(nOuterValues);
+	m_OuterValues.resize((size_t) nOuterValues);
 	for(int i = 0; i < nOuterValues; ++i)
 	{
 		m_OuterValues[i].type = reader.ReadInt32();
@@ -110,24 +112,24 @@ void NutFunction::Load( BinaryReader& reader )
 
 	reader.ConfirmOnPart();
 
-	m_Locals.resize(nLocalVarInfos);
+	m_Locals.resize((size_t) nLocalVarInfos);
 	for(int i = 0; i < nLocalVarInfos; ++i)
 	{
 		reader.ReadSQStringObject(m_Locals[i].name);
-		m_Locals[i].pos = reader.ReadInt32();
-		m_Locals[i].start_op = reader.ReadInt32();
-		m_Locals[i].end_op = reader.ReadInt32();
+		m_Locals[i].pos = reader.ReadInt64();
+		m_Locals[i].start_op = reader.ReadInt64();
+		m_Locals[i].end_op = reader.ReadInt64();
 		m_Locals[i].foreachLoopState = false;
 	}
 
 	reader.ConfirmOnPart();
 
-	m_LineInfos.resize(nLineInfos);
+	m_LineInfos.resize((size_t) nLineInfos);
 	reader.Read(&(m_LineInfos.front()), nLineInfos * sizeof(LineInfo));
 
 	reader.ConfirmOnPart();
 	
-	m_DefaultParams.resize(nDefaultParams);
+	m_DefaultParams.resize((size_t) nDefaultParams);
 	if (nDefaultParams)
 	{
 		reader.Read(&(m_DefaultParams.at(0)), nDefaultParams * sizeof(int));
@@ -135,22 +137,22 @@ void NutFunction::Load( BinaryReader& reader )
 
 	reader.ConfirmOnPart();
 
-	m_Instructions.resize(nInstructions);
+	m_Instructions.resize((size_t) nInstructions);
 	if (nInstructions)
 	{
 		reader.Read(&(m_Instructions.at(0)), nInstructions * sizeof(Instruction));
 	}
 
 	reader.ConfirmOnPart();
-
-	m_Functions.resize(nFunctions);
+	
+	m_Functions.resize((size_t) nFunctions);
 	for(int i = 0; i < nFunctions; ++i)
 	{
 		m_Functions[i].Load(reader);
 		m_Functions[i].SetIndex(i);
 	}
 
-	m_StackSize = reader.ReadInt32();
+	m_StackSize = reader.ReadInt64();
 	m_IsGenerator = reader.ReadBool();
 	m_GotVarParams = reader.ReadBool();
 
@@ -208,15 +210,15 @@ void NutScript::LoadFromStream( std::istream& in )
 	if (reader.ReadUInt16() != 0xFAFA) 
 		throw BadFormatError();
 
-	if (reader.ReadInt32() != 'SQIR') 
+	if (reader.ReadInt64() != 'SQIR') 
 		throw BadFormatError();
-
-	if (reader.ReadInt32() != sizeof(char))
+	
+	if (reader.ReadInt64() != sizeof(char))
 		throw Error("NUT file compiled for different size of char that expected.");
 
 	m_main.Load(reader);
 
-	if (reader.ReadInt32() != 'TAIL') 
+	if (reader.ReadUInt64() != 'TAIL') 
 		throw BadFormatError();
 }
 

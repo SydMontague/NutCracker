@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <stdint.h>
 #include "Errors.h"
 
 
@@ -23,13 +24,12 @@ public:
 	{
 	}
 
-
 	// ******************************************************************************
-	unsigned int ReadUInt32( void )
+	uint32_t ReadUInt32( void )
 	{
-		unsigned int value;
+		uint32_t value;
 
-		//static_assert(sizeof(value) == 4, "Invalid size of int type");
+		//static_assert(sizeof(value) == 4, "Invalid size of uint32_t type");
 
 		_in.read((char*)&value, 4);
 
@@ -41,11 +41,11 @@ public:
 
 
 	// ******************************************************************************
-	int ReadInt32( void )
+	int32_t ReadInt32( void )
 	{
-		int value;
+		int32_t value;
 
-		//static_assert(sizeof(value) == 4, "Invalid size of int type");
+		//static_assert(sizeof(value) == 4, "Invalid size of int32_t type");
 
 		_in.read((char*)&value, 4);
 
@@ -55,13 +55,43 @@ public:
 		return value;
 	}
 
+	// ******************************************************************************
+	uint64_t ReadUInt64( void )
+	{
+		uint64_t value;
+
+		//static_assert(sizeof(value) == 4, "Invalid size of uint64_t type");
+
+		_in.read((char*)&value, 8);
+
+		if (_in.fail())
+			throw Error("I/O Error while reading from file.");
+
+		return value;
+	}
 
 	// ******************************************************************************
-	unsigned short int ReadUInt16( void )
+	int64_t ReadInt64( void )
 	{
-		unsigned short int value;
+		int64_t value;
 
-		//static_assert(sizeof(value) == 2, "Invalid size of short int type");
+		//static_assert(sizeof(value) == 4, "Invalid size of int64_t type");
+
+		_in.read((char*)&value, 8);
+
+		if (_in.fail())
+			throw Error("I/O Error while reading from file.");
+
+		return value;
+	}
+
+
+	// ******************************************************************************
+	uint16_t ReadUInt16( void )
+	{
+		uint16_t value;
+
+		//static_assert(sizeof(value) == 2, "Invalid size of uint16_t");
 
 		_in.read((char*)&value, 2);
 
@@ -73,11 +103,11 @@ public:
 
 
 	// ******************************************************************************
-	short int ReadInt16( void )
+	int16_t ReadInt16( void )
 	{
-		short int value;
+		int16_t value;
 
-		//static_assert(sizeof(value) == 2, "Invalid size of short int type");
+		//static_assert(sizeof(value) == 2, "Invalid size of int16_t");
 
 		_in.read((char*)&value, 2);
 
@@ -89,9 +119,9 @@ public:
 
 
 	// ******************************************************************************
-	char ReadByte( void )
+	int8_t ReadByte( void )
 	{
-		char value;
+		int8_t value;
 
 		//static_assert(sizeof(value) == 1, "Invalid size of char type");
 
@@ -151,7 +181,7 @@ public:
 
 
 	// ******************************************************************************
-	void Read( void* buffer, int size )
+	void Read( void* buffer, uint64_t size )
 	{
 		if (size < 1)
 			return;
@@ -162,11 +192,14 @@ public:
 			throw Error("I/O Error while reading from file.");
 	}
 
+	std::streampos position() {
+		return _in.tellg();
+	}
 
 	// ******************************************************************************
 	void ConfirmOnPart( void )
 	{
-		if (ReadInt32() != 'PART')
+		if (ReadInt64() != 'PART')
 			throw Error("Bad format of source binary file (PART marker was not match).");
 	}
 
@@ -174,18 +207,18 @@ public:
 	// ******************************************************************************
 	void ReadSQString( std::string& str )
 	{
-		int len = ReadInt32();
+		uint64_t len = ReadUInt64();
 		str.clear();
-		str.reserve(len);
+		str.reserve((size_t) len);
 
 		while(len > 0)
 		{
 			char buffer[128];
-			int chunk = std::min(128, len);
+			uint64_t chunk = std::min((uint64_t) 128, len);
 
 			Read(buffer, chunk);
 
-			str.append(buffer, chunk);
+			str.append(buffer, (size_t) chunk);
 			len -= chunk;
 		}
 	}

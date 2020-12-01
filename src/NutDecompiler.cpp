@@ -218,10 +218,10 @@ private:
 public:
 	BlockState m_BlockState;
 
-	VMState( const NutFunction& parent, int stackSize )
+	VMState( const NutFunction& parent, int64_t stackSize )
 	: m_Parent(parent)
 	{
-		m_Stack.resize(stackSize);
+		m_Stack.resize((size_t) stackSize);
 		m_IP = 0;
 		m_Block = BlockStatementPtr(new BlockStatement);
 		m_BlockState.blockStart = -1;
@@ -256,8 +256,8 @@ public:
 		{		
 			if (i->end_op == (m_IP - 1))
 			{
-				m_Stack[i->pos].expression = ExpressionPtr();
-				m_Stack[i->pos].pendingStatements.clear();
+				m_Stack[(size_t) i->pos].expression = ExpressionPtr();
+				m_Stack[(size_t) i->pos].pendingStatements.clear();
 			}
 		}
 
@@ -432,12 +432,12 @@ public:
 	}
 
 
-	ExpressionPtr& AtStack( int pos )
+	ExpressionPtr& AtStack( int64_t pos )
 	{
-		if (pos < 0 || pos >= (int)m_Stack.size())
+		if (pos < 0 || pos >= m_Stack.size())
 			throw Error("Accessing non valid stack position.");
 
-		return m_Stack[pos].expression;
+		return m_Stack[(size_t) pos].expression;
 	}
 
 	StackCopyPtr CloneStack( void ) const
@@ -1728,7 +1728,7 @@ void NutFunction::GenerateBodySource( int n, std::ostream& out ) const
 		out << std::endl;
 		out << indent(n) << "// Instructions:" << std::endl;
 
-		int currentLine = 0;
+		int64_t currentLine = 0;
 		vector<LineInfo>::const_iterator lineInfo = m_LineInfos.begin();
 
 		for(size_t i = 0; i < m_Instructions.size(); ++i)
