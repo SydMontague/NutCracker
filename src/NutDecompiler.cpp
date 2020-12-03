@@ -1128,12 +1128,12 @@ void NutFunction::DecompileStatement( VMState& state ) const
 
 
 // ***************************************************************************************************************
-void NutFunction::DecompileJumpZeroInstruction( VMState& state, int arg0, int arg1 ) const
+void NutFunction::DecompileJumpZeroInstruction( VMState& state, int arg0, int jumpOffset ) const
 {
-	if (arg1 > 0 && (state.IP() + arg1) < (int)m_Instructions.size() && (state.IP() + arg1) <= state.m_BlockState.blockEnd)
+	if (jumpOffset > 0 && (state.IP() + jumpOffset) < (int)m_Instructions.size() && (state.IP() + jumpOffset) <= state.m_BlockState.blockEnd)
 	{
-		const Instruction& lastBlockOp = m_Instructions[state.IP() + arg1 - 1];
-		if (lastBlockOp.op == OP_JMP && lastBlockOp.arg1 < -arg1)
+		const Instruction& lastBlockOp = m_Instructions[state.IP() + jumpOffset - 1];
+		if (lastBlockOp.op == OP_JMP && lastBlockOp.arg1 < -jumpOffset)
 		{
 			// Found conditional block with reverse jump at the end - potentially while loop
 			// Check if last JMP is inside oure current block
@@ -1141,20 +1141,20 @@ void NutFunction::DecompileJumpZeroInstruction( VMState& state, int arg0, int ar
 			if (state.m_BlockState.inLoop && state.m_BlockState.inLoop != BlockState::DoWhileLoop)
 				blockLimit += 1;
 				
-			if ((state.IP() + arg1 + lastBlockOp.arg1) >= blockLimit)
+			if ((state.IP() + jumpOffset + lastBlockOp.arg1) >= blockLimit)
 			{
 				// While block found - push loop block
 				BlockState prevBlockState = state.m_BlockState;
 				state.m_BlockState.inLoop = BlockState::WhileLoop;
 				state.m_BlockState.inSwitch = 0;
-				state.m_BlockState.blockStart = state.IP() + arg1 + lastBlockOp.arg1;
-				state.m_BlockState.blockEnd = state.IP() + arg1 - 1;
+				state.m_BlockState.blockStart = state.IP() + jumpOffset + lastBlockOp.arg1;
+				state.m_BlockState.blockEnd = state.IP() + jumpOffset - 1;
 				state.m_BlockState.parent = &prevBlockState;
 
 				BlockStatementPtr block = state.PushBlock();
 				ExpressionPtr condition = state.GetVar(arg0);
 
-				int destIp = state.IP() + arg1;
+				int destIp = state.IP() + jumpOffset;
 				while(state.IP() < destIp && !state.EndOfInstructions())
 				{
 					if (state.IP() == (destIp - 1) && m_Instructions[state.IP()].op == OP_JMP && m_Instructions[state.IP()].arg1 < 0)
@@ -1180,11 +1180,10 @@ void NutFunction::DecompileJumpZeroInstruction( VMState& state, int arg0, int ar
 		}
 	}
 
-
 	// Search for switch chain pattern
-	if (arg1 > 0 && (state.IP() + arg1) <= state.m_BlockState.blockEnd)
+	if (jumpOffset > 0 && (state.IP() + jumpOffset) <= state.m_BlockState.blockEnd)
 	{
-		int pos1 = state.IP() + arg1 - 1;
+		int pos1 = state.IP() + jumpOffset - 1;
 		if (pos1 <= state.m_BlockState.blockEnd && m_Instructions[pos1].op == OP_JMP && m_Instructions[pos1].arg1 > 0)
 		{
 			int pos2 = pos1 + m_Instructions[pos1].arg1;  // +1 -1
@@ -1198,7 +1197,7 @@ void NutFunction::DecompileJumpZeroInstruction( VMState& state, int arg0, int ar
 	}
 
 
-	if (arg1 >= 0 && (state.IP() + arg1) <= state.m_BlockState.blockEnd)
+	if (jumpOffset >= 0 && (state.IP() + jumpOffset) <= state.m_BlockState.blockEnd)
 	{
 		// if instruction
 		BlockStatementPtr block = state.PushBlock();
@@ -1208,11 +1207,11 @@ void NutFunction::DecompileJumpZeroInstruction( VMState& state, int arg0, int ar
 		ExpressionPtr condition = state.GetVar(arg0);
 
 		//bool elseMatch = false;
-		int ifBlockEndIp = state.IP() + arg1;
+		int ifBlockEndIp = state.IP() + jumpOffset;
 		int elseBlockEndIp = 0;
 		bool gotElseBlock = false;
 			
-		if ((arg1 > 0) && (m_Instructions[ifBlockEndIp - 1].op == OP_JMP) && (m_Instructions[ifBlockEndIp - 1].arg1 >= 0))
+		if ((jumpOffset > 0) && (m_Instructions[ifBlockEndIp - 1].op == OP_JMP) && (m_Instructions[ifBlockEndIp - 1].arg1 >= 0))
 		{
 			// Last instruction of if block is unconditional forward jump - potentially else block
 			elseBlockEndIp = ifBlockEndIp + m_Instructions[ifBlockEndIp - 1].arg1;
