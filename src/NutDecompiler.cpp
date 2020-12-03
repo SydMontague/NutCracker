@@ -1187,7 +1187,7 @@ void NutFunction::DecompileJumpZeroInstruction( VMState& state, int arg0, int ju
 		if (pos1 <= state.m_BlockState.blockEnd && m_Instructions[pos1].op == OP_JMP && m_Instructions[pos1].arg1 > 0)
 		{
 			int pos2 = pos1 + m_Instructions[pos1].arg1;  // +1 -1
-			if (pos2 <= state.m_BlockState.blockEnd && m_Instructions[pos2].op == OP_JZ && m_Instructions[pos2].arg1 >= 0)
+			if (pos2 <= state.m_BlockState.blockEnd && m_Instructions[pos2].op == OP_JZ && m_Instructions[pos2].arg1 > 0)
 			{
 				// Found beggining of switch block with at least two case elements
 				DecompileSwitchBlock(state);
