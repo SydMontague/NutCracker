@@ -20,4 +20,7 @@ SET(SOURCE_FILES
     "Statements.cpp"
     "Statements.h")
 
-add_executable(NutCracker ${SOURCE_FILES})
+add_executable(NutCrackerCLI ${SOURCE_FILES})
+
+set_target_properties(NutCrackerCLI
+        PROPERTIES OUTPUT_NAME NutCracker)
