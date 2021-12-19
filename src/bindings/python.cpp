@@ -22,13 +22,9 @@ private:
 };
 
 
-void _py_Decompile(const std::string& source)
+void _py_Decompile(const std::string& source, const std::string& dest)
 {
 	ScopedGILRelease scoped;
-
-	size_t lastindex = source.find_last_of(".");
-	std::string dest = source.substr(0, lastindex);
-	dest += ".txt";
 
 	std::ofstream stream;
 	stream.open(dest);
@@ -37,13 +33,9 @@ void _py_Decompile(const std::string& source)
 	Decompile(source.c_str(), NULL, stream);
 }
 
-void _py_DecompileFunction(const std::string& source, const std::string& debug_function)
+void _py_DecompileFunction(const std::string& source, const std::string& dest, const std::string& debug_function)
 {
 	ScopedGILRelease scoped;
-
-	size_t lastindex = source.find_last_of(".");
-	std::string dest = source.substr(0, lastindex);
-	dest += ".txt";
 
 	std::ofstream stream;
 	stream.open(dest);
@@ -52,7 +44,7 @@ void _py_DecompileFunction(const std::string& source, const std::string& debug_f
 	Decompile(source.c_str(), debug_function.c_str(), stream);
 }
 
-//BOOST_PYTHON_FUNCTION_OVERLOADS(_py_Decompile_overloads, _py_Decompile, 1, 2)
+//BOOST_PYTHON_FUNCTION_OVERLOADS(_py_Decompile_overloads, _py_Decompile, 2, 3)
 
 
 BOOST_PYTHON_MODULE(NutCracker)
