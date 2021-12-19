@@ -2,21 +2,28 @@ cmake_minimum_required (VERSION 3.10)
 
 project("NutCracker")
 
-SET(SOURCE_FILES
-    src/BinaryReader.h
-    src/BlockState.h
-    src/Errors.cpp
-    src/Errors.h
-    src/Expressions.h
-    src/Formatters.h
-    src/main.cpp
-    src/NutDecompiler.cpp
-    src/NutScript.cpp
-    src/NutScript.h
-    src/SqObject.cpp
-    src/SqObject.h
-    src/Statements.cpp
-    src/Statements.h)
+set(CMAKE_CXX_STANDARD 14)
 
-add_executable(NutCracker ${SOURCE_FILES})
+if (MSVC)
+	add_definitions("-D_CRT_SECURE_NO_WARNINGS -D_WIN32_WINNT=0x0601") # Windows 7
+else()
+	set(CMAKE_CXX_FLAGS -pthread)
+endif()
+
+# --- Libraries ---
+# python
+FIND_PACKAGE(Python3)
+FIND_PACKAGE(PythonLibs REQUIRED)
+
+# boost
+if(WIN32)
+    set(Boost_USE_STATIC_LIBS ON) 
+elseif(BUILD_SHARED)
+    set(Boost_USE_STATIC_LIBS OFF) 
+endif()
+
+FIND_PACKAGE(Boost COMPONENTS python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR} REQUIRED)
+
+INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} ${PYTHON_INCLUDE_DIRS} )
+add_subdirectory("src/core")
 add_subdirectory("src/bindings")
