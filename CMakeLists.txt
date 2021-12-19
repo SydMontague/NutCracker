@@ -19,3 +19,4 @@ SET(SOURCE_FILES
     src/Statements.h)
 
 add_executable(NutCracker ${SOURCE_FILES})
+add_subdirectory("src/bindings")
