@@ -1,6 +1,4 @@
-#include "NutScript.h"
-#include <iostream>
-#include <fstream>
+#include "Actions.h"
 #include <cstring>
 
 const char* version = "0.03";
@@ -23,90 +21,6 @@ void Usage( void )
 	std::cout << std::endl;
 }
 
-
-int Compare( const char* file1, const char* file2, bool general )
-{
-	try
-	{
-		NutScript s1, s2;
-		s1.LoadFromFile(file1);
-		s2.LoadFromFile(file2);
-
-		if (general)
-		{
-			std::ofstream nullStream("null");
-			bool result = s1.GetMain().DoCompare(s2.GetMain(), "", nullStream);
-
-			if (result)
-				std::cout << "[         ]";
-			else
-				std::cout << "[! ERROR !]";
-
-			std::cout << " : " << file1 << std::endl;
-
-			return result ? 0 : -1;
-		}
-		else
-		{
-			bool result = s1.GetMain().DoCompare(s2.GetMain(), "", std::cout);
-			std::cout << std::endl << "Result: " << (result ? "Ok" : "ERROR") << std::endl;
-
-			return result ? 0 : -1;
-		}
-	}
-	catch( std::exception& ex )
-	{
-		std::cout << "Error: " << ex.what() << std::endl;
-		return -1;
-	}
-}
-
-
-void DebugFunctionPrint( const NutFunction& function )
-{
-	g_DebugMode = true;
-	function.GenerateFunctionSource(0, std::cout);
-}
-
-
-int Decompile( const char* file, const char* debugFunction )
-{
-	try
-	{
-		NutScript script;
-		script.LoadFromFile(file);
-
-		if (debugFunction)
-		{
-			if (0 == strcmp(debugFunction, "main"))
-			{
-				DebugFunctionPrint(script.GetMain());
-				return 0;
-			}
-			else
-			{
-				const NutFunction* func = script.GetMain().FindFunction(debugFunction);
-				if (!func)
-				{
-					std::cout << "Unable to find function \"" << debugFunction << "\"." << std::endl;
-					return -2;
-				}
-
-				DebugFunctionPrint(*func);
-				return 0;
-			}
-		}
-
-		script.GetMain().GenerateBodySource(0, std::cout);
-	}
-	catch( std::exception& ex )
-	{
-		std::cout << "Error: " << ex.what() << std::endl;
-		return -1;
-	}
-
-	return 0;
-}
 
 int stricmpWrapper(char* in, const char* cmp) {
 	#ifdef __linux__
@@ -157,7 +71,7 @@ int main( int argc, char* argv[] )
 		}
 		else
 		{
-			return Decompile(argv[i], debugFunction);
+			return Decompile(argv[i], debugFunction, std::cout);
 		}
 	}
 
