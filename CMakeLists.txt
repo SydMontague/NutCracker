@@ -3,6 +3,7 @@ cmake_minimum_required (VERSION 3.10)
 project("NutCracker")
 
 SET(SOURCE_FILES
+    src/Actions.cpp
     src/BinaryReader.h
     src/BlockState.h
     src/Errors.cpp
